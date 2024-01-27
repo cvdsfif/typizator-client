@@ -4,15 +4,4 @@
 
 ## Purpose
 
-Typescript doesn't have runtime types, all the type information is erased at the transpile stage. And since the version 5 there is no more _Reflect_ support neither. Here is a simple schemas definition library that lets you keep types metadata at run time, infer Typescript types from those schemas and convert raw JSON/object data to predefined structured types
-
-## Installing
-
-```Bash
-npm i typizator
-```
-
-## Documentation and tests
-
-Nothing better than tests to show how the library works. Simply read [these tests](https://github.com/cvdsfif/typizator/blob/main/tests/index.test.ts) and you'll know how to use this.
-
+This library is a client for [cdk-typescript-lib](https://www.npmjs.com/package/cdk-typescript-lib) using [typizator](https://www.npmjs.com/package/typizator). It lets you connect to Typescript cloud APIs hosted on AWS lambdas cloud.
