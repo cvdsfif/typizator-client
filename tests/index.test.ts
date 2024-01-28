@@ -19,13 +19,9 @@ describe("Testing Typescript API connection on a fetch mock", () => {
         dateFunc: { args: [dateS.notNull, stringS.optional], retVal: dateS.notNull }
     });
 
-    const STACK_NAME = "CdkLibraryExampleStack";
     const EXAMPLE_URL = "https://example.api";
-    const cdkExports = {} as any;
-    cdkExports[STACK_NAME] = {} as any;
-    cdkExports[STACK_NAME][API_URL_PARAM] = EXAMPLE_URL;
 
-    const testApi = connectTsApi(testApiS.metadata, cdkExports, STACK_NAME);
+    const testApi = connectTsApi(testApiS.metadata, EXAMPLE_URL);
 
     test("Should correctly translate a call of string=>string function", async () => {
         fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ data: "Return" }) }));

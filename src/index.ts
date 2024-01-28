@@ -40,5 +40,5 @@ const implementApi =
 
 export const connectTsApi =
     <T extends ApiDefinition>
-        (metadata: ApiMetadata<T>, cdkExports: any, stackName: string):
-        ApiImplementation<T> => implementApi(metadata, cdkExports[stackName][API_URL_PARAM]);
+        (metadata: ApiMetadata<T>, url: string):
+        ApiImplementation<T> => implementApi(metadata, url);
