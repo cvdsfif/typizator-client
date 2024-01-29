@@ -36,6 +36,11 @@ describe("Testing Typescript API connection on a fetch mock", () => {
         );
     });
 
+    test("Should correctly translate a call of string=>string function returning quoted string", async () => {
+        fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ data: `"Return"` }) }));
+        expect(await testApi.helloWorld("Test")).toEqual("Return");
+    });
+
     test("Should correctly translate a call of void=>void function", async () => {
         fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ data: "" }) }));
         expect(await testApi.noArgs()).toBeUndefined();

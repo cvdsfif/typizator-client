@@ -31,6 +31,9 @@ const implementApi =
                         throw new Error(
                             `There must be a data field in the received JSON: ${JSONBig.stringify(received)}`
                         );
+                    if (typeof received.data === "string"
+                        && (received.data as string).startsWith(`"`))
+                        return schema.retVal?.unbox((received.data as string).substring(1, (received.data as string).length - 1));
                     return schema.retVal?.unbox(received.data);
                 }
             }
