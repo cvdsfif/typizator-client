@@ -96,4 +96,14 @@ describe("Testing Typescript API connection on a fetch mock", () => {
         await expect(testApi.helloWorld("Test")).rejects
             .toThrow(`There must be a data field in the received JSON: {"wrong":"Report"}`);
     });
+
+    test("Should call the provided freeze and unfreeze if needed", async () => {
+        fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ data: "" }) }));
+        const freeze = jest.fn();
+        const unfreeze = jest.fn();
+        const freezableApi = connectTsApi(testApiS.metadata, EXAMPLE_URL, freeze, unfreeze);
+        await freezableApi.noArgs();
+        expect(freeze).toHaveBeenCalled();
+        expect(unfreeze).toHaveBeenCalled();
+    })
 });
