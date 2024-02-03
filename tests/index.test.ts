@@ -36,6 +36,21 @@ describe("Testing Typescript API connection on a fetch mock", () => {
         );
     });
 
+    test("Should not add extra trailing slash in URL address", async () => {
+        const EXAMPLE_URL_WITH_SLASH = "https://example.api/";
+        const testApiWithSlash = connectTsApi(testApiS.metadata, EXAMPLE_URL_WITH_SLASH);
+        fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ data: "Return" }) }));
+        await testApiWithSlash.helloWorld("Test");
+        expect(fetchMock).toHaveBeenCalledWith(
+            EXAMPLE_URL_WITH_SLASH + "hello-world",
+            {
+                method: "POST",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: `["Test"]`
+            }
+        );
+    });
+
     test("Should correctly translate a call of string=>string function returning quoted string", async () => {
         fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ data: `"Return"` }) }));
         expect(await testApi.helloWorld("Test")).toEqual("Return");

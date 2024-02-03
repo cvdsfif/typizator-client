@@ -15,7 +15,7 @@ const implementApi =
             if (schema.dataType === "api") (apiImplementation as any)[key] =
                 implementApi(schema, `${baseUrl}/${kebabKey}`, freeze, unfreeze);
             else {
-                const url = `${baseUrl}/${kebabKey}`;
+                const url = baseUrl.endsWith("/") ? `${baseUrl}${kebabKey}` : `${baseUrl}/${kebabKey}`;
                 (apiImplementation as any)[key] = async (...args: any) => {
                     freeze();
                     const received = await fetch(url, {
