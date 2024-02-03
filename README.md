@@ -1,6 +1,6 @@
 # Runtime types and metadata schemas for Typescript 
 
-![Coverage](./badges/coverage.svg) [![npm version](https://badge.fury.io/js/typizator.svg)](https://badge.fury.io/js/typizator) [![Node version](https://img.shields.io/node/v/typizator.svg?style=flat)](https://nodejs.org/)
+![Coverage](./badges/coverage.svg) [![npm version](https://badge.fury.io/js/typizator-client.svg)](https://badge.fury.io/js/typizator-client) [![Node version](https://img.shields.io/node/v/typizator-client.svg?style=flat)](https://nodejs.org/)
 
 ## Purpose
 
