@@ -17,7 +17,7 @@ const implementApi =
             else {
                 const url = baseUrl.endsWith("/") ? `${baseUrl}${kebabKey}` : `${baseUrl}/${kebabKey}`;
                 (apiImplementation as any)[key] = async (...args: any) => {
-                    freeze();
+                    freeze?.();
                     const received = await fetch(url, {
                         method: "POST",
                         headers: {
@@ -29,7 +29,7 @@ const implementApi =
                         r => r.json()
                     ).catch(e => {
                         throw new Error(`Error in fetch: ${e.message}`);
-                    }).finally(() => unfreeze());
+                    }).finally(() => unfreeze?.());
                     if (received?.errorMessage) throw new Error(`Server error: ${received.errorMessage}`);
                     if (received?.data === undefined)
                         throw new Error(
