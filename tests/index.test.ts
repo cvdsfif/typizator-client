@@ -110,7 +110,12 @@ describe("Testing Typescript API connection on a fetch mock", () => {
         fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ wrong: "Report" }) }));
         await expect(testApi.helloWorld("Test")).rejects
             .toThrow(`There must be a data field in the received JSON: {"wrong":"Report"}`);
-    });
+    })
+
+    test("Should not raise an error on no data field on server call result if the return value is absent", async () => {
+        fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({}) }));
+        expect(await testApi.noArgs()).toBeUndefined()
+    })
 
     test("Should call the provided freeze and unfreeze if needed", async () => {
         fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ data: "" }) }));

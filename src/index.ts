@@ -31,6 +31,7 @@ const implementApi =
                         throw new Error(`Error in fetch: ${e.message}`);
                     }).finally(() => unfreeze?.());
                     if (received?.errorMessage) throw new Error(`Server error: ${received.errorMessage}`);
+                    if (!schema.retVal) return undefined
                     if (received?.data === undefined)
                         throw new Error(
                             `There must be a data field in the received JSON: ${JSONBig.stringify(received)}`
