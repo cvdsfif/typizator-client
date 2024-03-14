@@ -2,23 +2,64 @@ import { ApiDefinition, ApiImplementation, ApiMetadata } from "typizator";
 import JSONBig from "json-bigint";
 
 export const API_URL_PARAM = "ApiUrl";
-const camelToKebab = (src: string | String) => src.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`);
+const camelToKebab = (src: string | String) => src.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`)
+
+export type SubApiUrls<T extends ApiDefinition> = {
+    [K in keyof T as T[K] extends ApiDefinition ? K : never]?:
+    T[K] extends ApiDefinition ? Partial<BaseUrlInformation<T[K]>> : never
+}
+/**
+ * Information about the connection to the server HTTP/JSON API
+ */
+export type BaseUrlInformation<T extends ApiDefinition> = {
+    /**
+     * Base URL for the API
+     */
+    url: string,
+    /**
+     * You usually don't have to use it directly, it is used to track URLs in sub-APIs
+     */
+    path?: string,
+    /**
+     * URL information for the child APIs. You can override the URLs for some of them
+     */
+    children?: SubApiUrls<T>,
+    /**
+     * Freezer function that is called when the server call is started. Allows to freeze the interface if needed
+     */
+    freeze?: () => void,
+    /**
+     * Unfreezer function that is called when the server call is finishied (whatever is the result). Allows to unfreeze the interface if needed
+     */
+    unfreeze?: () => void
+}
 
 const implementApi =
     <T extends ApiDefinition>
-        (metadata: ApiMetadata<T>, baseUrl: string,
-            freeze: () => void, unfreeze: () => void):
-        ApiImplementation<T> => {
-        const apiImplementation = {} as ApiImplementation<T>;
+        (
+            metadata: ApiMetadata<T>,
+            connectivity: BaseUrlInformation<T>
+        ): ApiImplementation<T> => {
+        const url = connectivity.url.endsWith("/") ? connectivity.url : `${connectivity.url}/`
+        const apiImplementation = {} as ApiImplementation<T>
         Array.from(metadata.members).forEach(([key, schema]) => {
             const kebabKey = camelToKebab(key as string);
-            if (schema.dataType === "api") (apiImplementation as any)[key] =
-                implementApi(schema, `${baseUrl}/${kebabKey}`, freeze, unfreeze);
+            if (schema.dataType === "api") {
+                const childConnectivity = (connectivity.children as any)?.[key] as Partial<BaseUrlInformation<any>>;
+                (apiImplementation as any)[key] =
+                    implementApi(schema, {
+                        url: childConnectivity?.url ?? url,
+                        path: `${connectivity.path ? `${connectivity.path}/` : ``}${kebabKey}`,
+                        children: childConnectivity?.children,
+                        freeze: childConnectivity?.freeze ?? connectivity.freeze,
+                        unfreeze: childConnectivity?.unfreeze ?? connectivity.unfreeze
+                    })
+            }
             else {
-                const url = baseUrl.endsWith("/") ? `${baseUrl}${kebabKey}` : `${baseUrl}/${kebabKey}`;
+                const fullUrl = `${url}${connectivity.path ? `${connectivity.path}/` : ""}${kebabKey}`;
                 (apiImplementation as any)[key] = async (...args: any) => {
-                    freeze?.();
-                    const received = await fetch(url, {
+                    connectivity.freeze?.()
+                    const received = await fetch(fullUrl, {
                         method: "POST",
                         headers: {
                             'Accept': 'application/json',
@@ -28,25 +69,34 @@ const implementApi =
                     }).then(
                         r => r.json()
                     ).catch(e => {
-                        throw new Error(`Error in fetch: ${e.message}`);
-                    }).finally(() => unfreeze?.());
-                    if (received?.errorMessage) throw new Error(`Server error: ${received.errorMessage}`);
+                        throw new Error(`Error in fetch: ${e.message}`)
+                    }).finally(() => connectivity.unfreeze?.())
+                    if (received?.errorMessage) throw new Error(`Server error: ${received.errorMessage}`)
                     if (!schema.retVal) return undefined
                     if (received?.data === undefined)
                         throw new Error(
                             `There must be a data field in the received JSON: ${JSONBig.stringify(received)}`
-                        );
+                        )
                     if (typeof received.data === "string"
                         && (received.data as string).startsWith(`"`))
-                        return schema.retVal?.unbox((received.data as string).substring(1, (received.data as string).length - 1));
-                    return schema.retVal?.unbox(received.data);
+                        return schema.retVal?.unbox((received.data as string).substring(1, (received.data as string).length - 1))
+                    return schema.retVal?.unbox(received.data)
                 }
             }
-        });
-        return apiImplementation;
+        })
+        return apiImplementation
     }
 
+/**
+ * Connects to the server API defined by a typizator API schema
+ * @param metadata API schema definition allowing strict typing of parameters and return types of the methods
+ * @param connectivity Information on how to connect to the backend server. See `BaseUrlInformation` for details
+ * @returns Callable API with every method implemented as `async` function
+ */
 export const connectTsApi =
     <T extends ApiDefinition>
-        (metadata: ApiMetadata<T>, url: string, freeze = () => { }, unfreeze = () => { }):
-        ApiImplementation<T> => implementApi(metadata, url, freeze, unfreeze);
+        (
+            metadata: ApiMetadata<T>,
+            connectivity: BaseUrlInformation<T>
+        ):
+        ApiImplementation<T> => implementApi(metadata, connectivity)

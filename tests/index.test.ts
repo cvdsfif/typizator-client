@@ -1,5 +1,5 @@
 import { apiS, bigintS, dateS, objectS, stringS } from "typizator";
-import { connectTsApi, API_URL_PARAM } from "../src";
+import { connectTsApi } from "../src";
 
 describe("Testing Typescript API connection on a fetch mock", () => {
     const fetchMock: jest.Mock = global.fetch = jest.fn();
@@ -14,14 +14,17 @@ describe("Testing Typescript API connection on a fetch mock", () => {
         helloWorld: { args: [stringS.notNull], retVal: stringS.notNull },
         noArgs: { args: [] },
         group: {
-            called: { args: [simpleRecordS.notNull], retVal: simpleRecordS.notNull }
+            called: { args: [simpleRecordS.notNull], retVal: simpleRecordS.notNull },
+            secondLevel: {
+                foo: { args: [] }
+            }
         },
         dateFunc: { args: [dateS.notNull, stringS.optional], retVal: dateS.notNull }
     });
 
     const EXAMPLE_URL = "https://example.api";
 
-    const testApi = connectTsApi(testApiS.metadata, EXAMPLE_URL);
+    const testApi = connectTsApi(testApiS.metadata, { url: EXAMPLE_URL })
 
     test("Should correctly translate a call of string=>string function", async () => {
         fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ data: "Return" }) }));
@@ -38,7 +41,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
 
     test("Should not add extra trailing slash in URL address", async () => {
         const EXAMPLE_URL_WITH_SLASH = "https://example.api/";
-        const testApiWithSlash = connectTsApi(testApiS.metadata, EXAMPLE_URL_WITH_SLASH);
+        const testApiWithSlash = connectTsApi(testApiS.metadata, { url: EXAMPLE_URL_WITH_SLASH });
         fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ data: "Return" }) }));
         await testApiWithSlash.helloWorld("Test");
         expect(fetchMock).toHaveBeenCalledWith(
@@ -79,6 +82,41 @@ describe("Testing Typescript API connection on a fetch mock", () => {
                 headers: { "Accept": "application/json", "Content-Type": "application/json" },
                 body: `[{"id":0,"name":""}]`
             }
+        )
+    })
+
+    test("Should correctly translate a call of object=>object function in a sub-api with a different base URL", async () => {
+        const URL_CHANGED = "http://glop"
+        const testApiChanged = connectTsApi(testApiS.metadata, {
+            url: EXAMPLE_URL,
+            children: {
+                group: {
+                    url: URL_CHANGED
+                }
+            }
+        })
+        fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ data: `{"id":12345678901234567890,"name":"some"}` }) }))
+        expect(await testApiChanged.group.called({ id: 0n, name: "" })).toEqual({ id: 12345678901234567890n, name: "some" })
+        expect(fetchMock).toHaveBeenCalledWith(
+            URL_CHANGED + "/group/called",
+            {
+                method: "POST",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: `[{"id":0,"name":""}]`
+            }
+        )
+    })
+
+    test("Should correctly translate a call of empty function in a sub-sub-api", async () => {
+        fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({}) }));
+        expect(await testApi.group.secondLevel.foo()).toBeUndefined();
+        expect(fetchMock).toHaveBeenCalledWith(
+            EXAMPLE_URL + "/group/second-level/foo",
+            {
+                method: "POST",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: `[]`
+            }
         );
     });
 
@@ -104,7 +142,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
     test("Should raise an error if there is a reported server error", async () => {
         fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ errorMessage: "Report" }) }));
         await expect(testApi.helloWorld("Test")).rejects.toThrow("Server error: Report");
-    });
+    })
 
     test("Should raise an error if there is no data field on server call result", async () => {
         fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ wrong: "Report" }) }));
@@ -121,7 +159,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
         fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ data: "" }) }));
         const freeze = jest.fn();
         const unfreeze = jest.fn();
-        const freezableApi = connectTsApi(testApiS.metadata, EXAMPLE_URL, freeze, unfreeze);
+        const freezableApi = connectTsApi(testApiS.metadata, { url: EXAMPLE_URL, freeze, unfreeze });
         await freezableApi.noArgs();
         expect(freeze).toHaveBeenCalled();
         expect(unfreeze).toHaveBeenCalled();
