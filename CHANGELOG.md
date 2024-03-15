@@ -10,6 +10,6 @@ Documented and released
 
 ### Added
 
-Possibility to use different base URLs for different sub-APIs
+- Possibility to use different base URLs for different sub-APIs
 
 
