@@ -1,4 +1,4 @@
-import { ApiDefinition, ApiImplementation, ApiMetadata } from "typizator";
+import { ApiDefinition, ApiImplementation, ApiMetadata, ApiSchema, FunctionMetadata } from "typizator";
 import JSONBig from "json-bigint";
 
 export const API_URL_PARAM = "ApiUrl";
@@ -42,7 +42,8 @@ const implementApi =
         ): ApiImplementation<T> => {
         const url = connectivity.url.endsWith("/") ? connectivity.url : `${connectivity.url}/`
         const apiImplementation = {} as ApiImplementation<T>
-        Array.from(metadata.members).forEach(([key, schema]) => {
+        Object.keys(metadata.implementation).forEach(key => {
+            const schema = (metadata.implementation as any)[key].metadata as FunctionMetadata | ApiMetadata<any>
             const kebabKey = camelToKebab(key as string);
             if (schema.dataType === "api") {
                 const childConnectivity = (connectivity.children as any)?.[key] as Partial<BaseUrlInformation<any>>;
