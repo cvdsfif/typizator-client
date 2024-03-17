@@ -23,6 +23,7 @@
     "runtime types"
   ],
   "author": "Nikit Zykov <ch.destr@gmail.com>",
+  "license": "ISC",
   "devDependencies": {
     "@types/jest": "^29.5.11",
     "coverage-badges": "^1.0.7",
