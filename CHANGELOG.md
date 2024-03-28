@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 1.1.0 - 2024-03-28
+
 ## 1.0.1 - 2024-03-17
 Few documentation updates. Dependencies updated and deprecated properties usage replaced by newer ones
 
