@@ -84,3 +84,20 @@ You can implement `freezeFunction` and `unfreezeFunction` with no arguments and 
 Behind the scenes, when you call `helloWorld("test")` for example, it generates a `POST` HTTP call to _https://example.api/hello-world/_ with the Post's body containing `["test"]` and return something like `{data: "Return value"}`, the unboxed well-typed contents of `data` will resolve the promise.
 
 If there if an error occured on the server, it will return something like `{errorMessage: "Error contents"}`, the library will detect it and reject the promise.
+
+### Authentication
+
+You have the possibility to provide the server with a security token that will be verified by the server and used for authorization. For that, it is enough to add an extra parameter to the API connection:
+
+```ts
+const EXAMPLE_URL = "https://example.api"
+const URL_CHANGED = "http://foo.net"
+
+const api = connectTsApi(testApiS.metadata, {
+    url: EXAMPLE_URL,
+    freeze: freezeFunction,
+    unfreeze: unfreezeFunction
+}, () => securityToken)
+```
+
+In this example, `securityToken` can be a state variable dynamically updated by the client page, it is read each time you make a call through the `api` connector.

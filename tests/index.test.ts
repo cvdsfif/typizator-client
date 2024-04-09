@@ -150,6 +150,12 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             .toThrow(`There must be a data field in the received JSON: {"wrong":"Report"}`);
     })
 
+    test("Should raise an error if the call is not authorized", async () => {
+        fetchMock.mockReturnValueOnce(Promise.resolve({ status: 401, json: async () => ({ data: "Return" }) }));
+        await expect(testApi.helloWorld("Test")).rejects
+            .toThrow(`Server error: Unauthorized`);
+    })
+
     test("Should not raise an error on no data field on server call result if the return value is absent", async () => {
         fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({}) }));
         expect(await testApi.noArgs()).toBeUndefined()

@@ -70,7 +70,10 @@ const implementApi =
                         },
                         body: JSONBig.stringify(args)
                     }).then(
-                        r => r.json()
+                        r =>
+                            r.status === 401 ?
+                                ({ errorMessage: "Unauthorized" }) :
+                                r.json()
                     ).catch(e => {
                         throw new Error(`Error in fetch: ${e.message}`)
                     }).finally(() => connectivity.unfreeze?.())
