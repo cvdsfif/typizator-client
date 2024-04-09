@@ -55,7 +55,7 @@ const implementApi =
                         children: childConnectivity?.children,
                         freeze: childConnectivity?.freeze ?? connectivity.freeze,
                         unfreeze: childConnectivity?.unfreeze ?? connectivity.unfreeze
-                    })
+                    }, securityProvider)
             }
             else {
                 const fullUrl = `${url}${connectivity.path ? `${connectivity.path}/` : ""}${kebabKey}`;
