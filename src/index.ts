@@ -38,7 +38,8 @@ const implementApi =
     <T extends ApiDefinition>
         (
             metadata: ApiMetadata<T>,
-            connectivity: BaseUrlInformation<T>
+            connectivity: BaseUrlInformation<T>,
+            securityProvider?: () => string
         ): ApiImplementation<T> => {
         const url = connectivity.url.endsWith("/") ? connectivity.url : `${connectivity.url}/`
         const apiImplementation = {} as ApiImplementation<T>
@@ -64,7 +65,8 @@ const implementApi =
                         method: "POST",
                         headers: {
                             'Accept': 'application/json',
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'x-security-token': securityProvider?.() ?? ""
                         },
                         body: JSONBig.stringify(args)
                     }).then(
@@ -92,12 +94,14 @@ const implementApi =
  * Connects to the server API defined by a typizator API schema
  * @param metadata API schema definition allowing strict typing of parameters and return types of the methods
  * @param connectivity Information on how to connect to the backend server. See `BaseUrlInformation` for details
+ * @param securityProvider Optional function returning a security token that will be sent to the server as X-Security-Token header
  * @returns Callable API with every method implemented as `async` function
  */
 export const connectTsApi =
     <T extends ApiDefinition>
         (
             metadata: ApiMetadata<T>,
-            connectivity: BaseUrlInformation<T>
+            connectivity: BaseUrlInformation<T>,
+            securityProvider?: () => string
         ):
-        ApiImplementation<T> => implementApi(metadata, connectivity)
+        ApiImplementation<T> => implementApi(metadata, connectivity, securityProvider)

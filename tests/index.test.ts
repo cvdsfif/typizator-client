@@ -33,7 +33,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             EXAMPLE_URL + "/hello-world",
             {
                 method: "POST",
-                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
                 body: `["Test"]`
             }
         );
@@ -48,7 +48,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             EXAMPLE_URL_WITH_SLASH + "hello-world",
             {
                 method: "POST",
-                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
                 body: `["Test"]`
             }
         );
@@ -66,7 +66,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             EXAMPLE_URL + "/no-args",
             {
                 method: "POST",
-                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
                 body: `[]`
             }
         );
@@ -79,7 +79,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             EXAMPLE_URL + "/group/called",
             {
                 method: "POST",
-                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
                 body: `[{"id":0,"name":""}]`
             }
         )
@@ -101,7 +101,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             URL_CHANGED + "/group/called",
             {
                 method: "POST",
-                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
                 body: `[{"id":0,"name":""}]`
             }
         )
@@ -114,7 +114,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             EXAMPLE_URL + "/group/second-level/foo",
             {
                 method: "POST",
-                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
                 body: `[]`
             }
         );
@@ -128,7 +128,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             EXAMPLE_URL + "/date-func",
             {
                 method: "POST",
-                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
                 body: `["2024-01-26T00:00:00.000Z",null]`
             }
         );
@@ -164,4 +164,28 @@ describe("Testing Typescript API connection on a fetch mock", () => {
         expect(freeze).toHaveBeenCalled();
         expect(unfreeze).toHaveBeenCalled();
     })
-});
+
+    test("Should forward the security token to the server API", async () => {
+        // GIVEN the API is configured to use the security context
+        const SECURITY_TOKEN = "Toktok"
+        const testApi = connectTsApi(testApiS.metadata, { url: EXAMPLE_URL }, () => SECURITY_TOKEN)
+        fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ data: "Return" }) }))
+
+        // WHEN calling the client function
+        expect(await testApi.helloWorld("Test")).toEqual("Return");
+
+        // THEN the security context is sent to the server API
+        expect(fetchMock).toHaveBeenCalledWith(
+            EXAMPLE_URL + "/hello-world",
+            {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    'x-security-token': SECURITY_TOKEN
+                },
+                body: `["Test"]`
+            }
+        );
+    })
+})
