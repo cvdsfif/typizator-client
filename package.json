@@ -35,7 +35,8 @@
   },
   "dependencies": {
     "@types/json-bigint": "^1.0.4",
-    "json-bigint": "^1.0.0"
+    "json-bigint": "^1.0.0",
+    "typizator": "^3.1.0-beta.3"
   },
   "engines": {
     "node": ">=20.0.0"
