@@ -144,6 +144,11 @@ describe("Testing Typescript API connection on a fetch mock", () => {
         await expect(testApi.helloWorld("Test")).rejects.toThrow("Server error: Report");
     })
 
+    test("Should raise an error if there is a reported server error in message field", async () => {
+        fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ message: "Report" }) }));
+        await expect(testApi.helloWorld("Test")).rejects.toThrow("Server error: Report");
+    })
+
     test("Should raise an error if there is no data field on server call result", async () => {
         fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ wrong: "Report" }) }));
         await expect(testApi.helloWorld("Test")).rejects

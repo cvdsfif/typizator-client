@@ -78,6 +78,7 @@ const implementApi =
                         throw new Error(`Error in fetch: ${e.message}`)
                     }).finally(() => connectivity.unfreeze?.())
                     if (received?.errorMessage) throw new Error(`Server error: ${received.errorMessage}`)
+                    if (received?.message) throw new Error(`Server error: ${received.message}`)
                     if (!schema.retVal) return undefined
                     if (received?.data === undefined)
                         throw new Error(
