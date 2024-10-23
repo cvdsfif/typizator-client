@@ -31,7 +31,11 @@ export type BaseUrlInformation<T extends ApiDefinition> = {
     /**
      * Unfreezer function that is called when the server call is finishied (whatever is the result). Allows to unfreeze the interface if needed
      */
-    unfreeze?: () => void
+    unfreeze?: () => void,
+    /**
+     * If true, configure API to ignore CORS restrictions
+     */
+    wildcardCors?: boolean,
 }
 
 const implementApi =
@@ -63,7 +67,7 @@ const implementApi =
                     connectivity.freeze?.()
                     const received = await fetch(fullUrl, {
                         method: "POST",
-                        credentials: "include",
+                        credentials: connectivity.wildcardCors ? undefined : "include",
                         headers: {
                             'Accept': 'application/json',
                             'Content-Type': 'application/json',
