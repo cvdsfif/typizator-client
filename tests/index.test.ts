@@ -33,6 +33,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             EXAMPLE_URL + "/hello-world",
             {
                 method: "POST",
+                credentials: "include",
                 headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
                 body: `["Test"]`
             }
@@ -48,6 +49,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             EXAMPLE_URL_WITH_SLASH + "hello-world",
             {
                 method: "POST",
+                credentials: "include",
                 headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
                 body: `["Test"]`
             }
@@ -66,6 +68,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             EXAMPLE_URL + "/no-args",
             {
                 method: "POST",
+                credentials: "include",
                 headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
                 body: `[]`
             }
@@ -79,6 +82,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             EXAMPLE_URL + "/group/called",
             {
                 method: "POST",
+                credentials: "include",
                 headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
                 body: `[{"id":0,"name":""}]`
             }
@@ -101,6 +105,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             URL_CHANGED + "/group/called",
             {
                 method: "POST",
+                credentials: "include",
                 headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
                 body: `[{"id":0,"name":""}]`
             }
@@ -114,6 +119,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             EXAMPLE_URL + "/group/second-level/foo",
             {
                 method: "POST",
+                credentials: "include",
                 headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
                 body: `[]`
             }
@@ -128,6 +134,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             EXAMPLE_URL + "/date-func",
             {
                 method: "POST",
+                credentials: "include",
                 headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
                 body: `["2024-01-26T00:00:00.000Z",null]`
             }
@@ -190,6 +197,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             EXAMPLE_URL + "/hello-world",
             {
                 method: "POST",
+                credentials: "include",
                 headers: {
                     "Accept": "application/json",
                     "Content-Type": "application/json",
