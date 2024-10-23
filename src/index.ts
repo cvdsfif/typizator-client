@@ -58,7 +58,8 @@ const implementApi =
                         path: `${connectivity.path ? `${connectivity.path}/` : ``}${kebabKey}`,
                         children: childConnectivity?.children,
                         freeze: childConnectivity?.freeze ?? connectivity.freeze,
-                        unfreeze: childConnectivity?.unfreeze ?? connectivity.unfreeze
+                        unfreeze: childConnectivity?.unfreeze ?? connectivity.unfreeze,
+                        wildcardCors: childConnectivity?.wildcardCors ?? connectivity.wildcardCors
                     }, securityProvider)
             }
             else {
