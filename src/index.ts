@@ -63,6 +63,7 @@ const implementApi =
                     connectivity.freeze?.()
                     const received = await fetch(fullUrl, {
                         method: "POST",
+                        credentials: "include",
                         headers: {
                             'Accept': 'application/json',
                             'Content-Type': 'application/json',
