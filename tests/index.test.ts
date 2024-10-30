@@ -2,14 +2,21 @@ import { apiS, bigintS, dateS, objectS, stringS } from "typizator";
 import { connectTsApi } from "../src";
 
 describe("Testing Typescript API connection on a fetch mock", () => {
-    const fetchMock: jest.Mock = global.fetch = jest.fn();
+    const fetchMock: jest.Mock = global.fetch = jest.fn()
 
-    beforeEach(() => fetchMock.mockClear());
+    const navigator = global.navigator = {
+        userAgent: ""
+    } as any
+
+    beforeEach(() => {
+        navigator.userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+        fetchMock.mockClear()
+    })
 
     const simpleRecordS = objectS({
         id: bigintS,
         name: stringS
-    });
+    })
     const testApiS = apiS({
         helloWorld: { args: [stringS.notNull], retVal: stringS.notNull },
         noArgs: { args: [] },
@@ -39,7 +46,22 @@ describe("Testing Typescript API connection on a fetch mock", () => {
                 body: `["Test"]`
             }
         );
-    });
+    })
+
+    test("Should correctly translate a call of string=>string function on Safari", async () => {
+        navigator.userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15"
+        fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ data: "Return" }) }));
+        expect(await testApi.helloWorld("Test")).toEqual("Return");
+        expect(fetchMock).toHaveBeenCalledWith(
+            EXAMPLE_URL + "/hello-world",
+            {
+                method: "POST",
+                credentials: "same-origin",
+                headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
+                body: `["Test"]`
+            }
+        );
+    })
 
     test("Should correctly translate a call of string=>string function with wildcard CORS", async () => {
         fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ data: "Return" }) }));
