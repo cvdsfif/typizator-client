@@ -45,7 +45,8 @@ describe("Testing Typescript API connection on a fetch mock", () => {
         "Accept": "application/json",
         "Content-Type": "application/json",
         'x-security-token': "",
-        "Origin": window.location.origin
+        "Origin": window.location.origin,
+        'X-Requested-With': 'XMLHttpRequest'
     }
 
     test("Should correctly translate a call of string=>string function", async () => {
