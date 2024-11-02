@@ -34,6 +34,20 @@ describe("Testing Typescript API connection on a fetch mock", () => {
     const testApi = connectTsApi(testApiS.metadata, { url: EXAMPLE_URL })
     const testApiWildcardCors = connectTsApi(testApiS.metadata, { url: EXAMPLE_URL, wildcardCors: true })
 
+    global.window = {} as any
+    window.location = {} as any
+    Object.defineProperty(window.location, "origin", {
+        value: "https://example.api",
+        writable: true
+    })
+
+    const headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        'x-security-token': "",
+        "Origin": window.location.origin
+    }
+
     test("Should correctly translate a call of string=>string function", async () => {
         fetchMock.mockReturnValueOnce(Promise.resolve({ json: async () => ({ data: "Return" }) }));
         expect(await testApi.helloWorld("Test")).toEqual("Return");
@@ -42,7 +56,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             {
                 method: "POST",
                 credentials: "include",
-                headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
+                headers,
                 body: `["Test"]`
             }
         );
@@ -57,7 +71,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             {
                 method: "POST",
                 credentials: "same-origin",
-                headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
+                headers,
                 body: `["Test"]`
             }
         );
@@ -70,7 +84,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             EXAMPLE_URL + "/hello-world",
             {
                 method: "POST",
-                headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
+                headers,
                 body: `["Test"]`
             }
         )
@@ -86,7 +100,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             {
                 method: "POST",
                 credentials: "include",
-                headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
+                headers,
                 body: `["Test"]`
             }
         );
@@ -105,7 +119,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             {
                 method: "POST",
                 credentials: "include",
-                headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
+                headers,
                 body: `[]`
             }
         );
@@ -119,7 +133,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             {
                 method: "POST",
                 credentials: "include",
-                headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
+                headers,
                 body: `[{"id":0,"name":""}]`
             }
         )
@@ -142,7 +156,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             {
                 method: "POST",
                 credentials: "include",
-                headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
+                headers,
                 body: `[{"id":0,"name":""}]`
             }
         )
@@ -156,7 +170,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             {
                 method: "POST",
                 credentials: "include",
-                headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
+                headers,
                 body: `[]`
             }
         );
@@ -171,7 +185,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
             {
                 method: "POST",
                 credentials: "include",
-                headers: { "Accept": "application/json", "Content-Type": "application/json", 'x-security-token': "" },
+                headers,
                 body: `["2024-01-26T00:00:00.000Z",null]`
             }
         );
@@ -235,8 +249,7 @@ describe("Testing Typescript API connection on a fetch mock", () => {
                 method: "POST",
                 credentials: "include",
                 headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
+                    ...headers,
                     'x-security-token': SECURITY_TOKEN
                 },
                 body: `["Test"]`

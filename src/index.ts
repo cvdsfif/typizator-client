@@ -75,7 +75,8 @@ const implementApi =
                         headers: {
                             'Accept': 'application/json',
                             'Content-Type': 'application/json',
-                            'x-security-token': securityProvider?.() ?? ""
+                            'x-security-token': securityProvider?.() ?? "",
+                            'Origin': window.location.origin
                         },
                         body: JSONBig.stringify(args)
                     }).then(
