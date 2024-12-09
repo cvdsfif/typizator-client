@@ -66,7 +66,7 @@ const implementApi =
                 const fullUrl = `${url}${connectivity.path ? `${connectivity.path}/` : ""}${kebabKey}`;
                 (apiImplementation as any)[key] = async (...args: any) => {
                     connectivity.freeze?.()
-                    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+                    const isSafari = !navigator || /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
                     const received = await fetch(fullUrl, {
                         method: "POST",
                         // same-origin is needed for CORS to work
