@@ -257,6 +257,29 @@ describe("Testing Typescript API connection on a fetch mock", () => {
                 },
                 body: `["Test"]`
             }
-        );
+        )
+    })
+
+    test("Should translate a hidden API to an empty object", () => {
+        // GIVEN an API declared as hidden
+        const hiddenApiS = apiS({ helloWorld: { args: [] } }, { hidden: true })
+
+        // WHEN connecting to it
+        const hiddenApi = connectTsApi(hiddenApiS.metadata, { url: EXAMPLE_URL })
+
+        // THEN the API is translated to an empty object
+        expect(hiddenApi.helloWorld).toBeUndefined()
+    })
+
+    test("Should translate a hidden function to an empty object", () => {
+        // GIVEN an API declared as hidden
+        const hiddenApiS = apiS({ helloWorld: { args: [], hidden: true }, f2: { args: [] } })
+
+        // WHEN connecting to it
+        const hiddenApi = connectTsApi(hiddenApiS.metadata, { url: EXAMPLE_URL })
+
+        // THEN the function helloWorld is not translated
+        expect((hiddenApi as any).helloWorld).toBeUndefined()
+        expect(hiddenApi.f2).toBeDefined()
     })
 })

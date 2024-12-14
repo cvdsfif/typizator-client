@@ -1,4 +1,4 @@
-import { ApiDefinition, ApiImplementation, ApiMetadata, ApiSchema, FunctionMetadata } from "typizator";
+import { ApiDefinition, ApiImplementation, ApiImplementationWithVisibility, ApiMetadata, ApiSchema, FunctionMetadata } from "typizator";
 import JSONBig from "json-bigint";
 
 export const API_URL_PARAM = "ApiUrl";
@@ -44,9 +44,10 @@ const implementApi =
             metadata: ApiMetadata<T>,
             connectivity: BaseUrlInformation<T>,
             securityProvider?: () => string
-        ): ApiImplementation<T> => {
+        ): ApiImplementationWithVisibility<T> => {
+        if (metadata.hidden) return {} as ApiImplementationWithVisibility<T>
         const url = connectivity.url.endsWith("/") ? connectivity.url : `${connectivity.url}/`
-        const apiImplementation = {} as ApiImplementation<T>
+        const apiImplementation = {} as ApiImplementationWithVisibility<T>
         Object.keys(metadata.implementation).forEach(key => {
             const schema = (metadata.implementation as any)[key].metadata as FunctionMetadata | ApiMetadata<any>
             const kebabKey = camelToKebab(key as string);
@@ -63,6 +64,7 @@ const implementApi =
                     }, securityProvider)
             }
             else {
+                if (schema.hidden) return
                 const fullUrl = `${url}${connectivity.path ? `${connectivity.path}/` : ""}${kebabKey}`;
                 (apiImplementation as any)[key] = async (...args: any) => {
                     connectivity.freeze?.()
@@ -121,4 +123,4 @@ export const connectTsApi =
             connectivity: BaseUrlInformation<T>,
             securityProvider?: () => string
         ):
-        ApiImplementation<T> => implementApi(metadata, connectivity, securityProvider)
+        ApiImplementationWithVisibility<T> => implementApi(metadata, connectivity, securityProvider)
